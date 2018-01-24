@@ -1,0 +1,50 @@
+extends layout
+
+block mainTitle
+  h1 Infinite Scroll
+
+block content
+  h2 Settings
+  ul
+    li Limit: #{limit}
+    li Page: #{page}
+    li Zoom: #{zoom}
+
+  ul
+    li Current Page: 
+      span.page-counter= page
+    li Total Markers: 
+      span.markers-counter= limit
+
+  section.content
+    aside
+
+    div#map
+
+block append scripts_body
+  script(src='/javascripts/stream.js')
+  script.
+    let active = false;
+    setupSidebar( { page: parseInt(currentPage, 10), limit: limit } );
+
+    document.querySelector('.content aside').addEventListener('scroll', (e) => {
+      if ((e.target.scrollTop + e.target.offsetHeight > e.target.scrollHeight - 600) && active == false) {
+        console.log('JUST CHECKING')
+        active = true;
+        currentPage++;
+        console.log('FIRING USER INITIATED LOADING OF MORE LISTINGS AND MAP MARKERS')
+        getListings({ page: parseInt(currentPage, 10), limit: limit })
+          .then((listings) => {
+            addMarkers(listings, 'DROP');
+            addListings(listings);
+            document.querySelector('.markers-counter').innerHTML = currentPage * limit;
+            document.querySelector('.page-counter').innerHTML = currentPage;
+            active = false;
+          });
+      }
+
+    });
+
+
+    
+

@@ -1,0 +1,29 @@
+extends layout
+
+block mainTitle
+  h1 Map w/ different limits
+
+block content
+  
+  h2 Settings
+  ul
+    li Limit: #{limit}
+    li Page: #{page}
+    li Zoom: #{zoom}
+
+  h2 Limits
+    ul.nav.nav-minor
+      li 
+        a(href='/maps?limit=30&page=1') 30
+      li
+        a(href='/maps?limit=50&page=1') 50
+      li
+        a(href='/maps?limit=80&page=1') 80
+      li
+        a(href='/maps?limit=100&page=1') 100
+  div#map
+
+block append scripts_body
+  script(src='/javascripts/maps.js')
+    
+

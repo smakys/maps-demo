@@ -1,0 +1,54 @@
+extends layout
+
+block mainTitle
+  h1 Stream results
+
+block content
+  
+  h2 Settings
+  ul
+    li Limit: #{limit}
+    li Page: #{page}
+    li Zoom: #{zoom}
+    li Delay: #{delay / 1000}
+
+  ul
+    li Current Page: 
+      span.page-counter= page
+    li Total Markers: 
+      span.markers-counter= limit
+    
+
+  h2 Delay
+    ul.nav.nav-minor
+      li
+        a(href='/stream?delay=500') 1/2 second
+      li
+        a(href='/stream?delay=750') 1/3 second
+      li
+        a(href='/stream?delay=1000') 1 second
+
+
+  div#map
+
+block append scripts_body
+  script(src='/javascripts/stream.js')
+  script.
+    const delay = "#{delay}";
+
+    document.addEventListener('markersDone', (e) => {
+      count++;
+      if (count <= 10) {
+        setTimeout(() => {
+          currentPage++;
+          
+          setupMarkers({ page: parseInt(currentPage, 10), limit: limit })
+            .then(() => {
+              document.querySelector('.markers-counter').innerHTML = currentPage * limit;
+              document.querySelector('.page-counter').innerHTML = currentPage;
+            });
+        }, parseInt(delay) || 500);
+      }
+    });
+    
+
