@@ -4,6 +4,10 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
+    ul.settings
+      li
+        a(href='#' class='js-toggle-scroll') Toggle Scroll to Zoom: <span class="zoom">Off</span>
+          
     block mainTitle
 
     block header
@@ -17,6 +21,10 @@ html
           a(href='/user-interaction') Infinite scroll
         li
           a(href='/draw-shape') Draw a shape on the map
+        li
+          a(href='/zoom-pan') Zoom / Pan
+
+      
     block content
     block scripts_body
       script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCUZzcMMn3C4OjVWp2SGT1cLZ9GkRKa--Y&libraries=drawing' async defer)
@@ -26,6 +34,9 @@ html
         let zoom = "#{zoom}"
         let map;
         let count = 1;
+        let scrollwheel = true;
+
+        let firstLoad = true;
 
       script(src='/javascripts/global.js')
       script.

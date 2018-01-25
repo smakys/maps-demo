@@ -93,8 +93,34 @@ const initMap = (opts = {}, showMarkers = true) => {
     center: center
   });
 
+  if (!/(draw-shape)/.test(window.location.pathname)) {
+    setupMarkers(opts);
+  }
+  
   map.addListener('bounds_changed', debounce(() => {
-    console.log('bounds_changed');
+    console.log('bounds_changed')
+    console.log(firstLoad);
+    console.log(/(zoom-pan)/.test(window.location.pathname));
+    if (!firstLoad && /(zoom-pan)/.test(window.location.pathname)) {
+      console.log('getting results for panning');
+      const ne = map.getBounds().getNorthEast().toUrlValue().replace(',', ' ');
+      const sw = map.getBounds().getSouthWest().toUrlValue().replace(',', ' ');
+      const polygonPoints = [];
+
+      polygonPoints.push(ne);
+      polygonPoints.push(`${map.getBounds().toJSON().south} ${map.getBounds().toJSON().east}`);
+      polygonPoints.push(sw);
+      polygonPoints.push(`${map.getBounds().toJSON().north} ${map.getBounds().toJSON().west}`);
+      polygonPoints.push(ne);
+
+      const points = polygonPoints.join(',');
+
+      getListings({limit: limit, page: 1, polygon: `POLYGON((${encodeURIComponent(points)}))` })
+        .then((listings) => {
+          addMarkers(listings);
+        });
+    }
+
   }, 300));
 
   map.addListener('zoom_changed', () => {
@@ -107,36 +133,16 @@ const initMap = (opts = {}, showMarkers = true) => {
 
   map.addListener('idle', () => {
     console.log('idle');
-    // console.log(map.getBounds());
-    // console.log(map.getBounds().getNorthEast().lat())
-    // console.log(map.getBounds().getNorthEast().lng())
-    // console.log(map.getBounds().getSouthWest().lat())
-    // console.log(map.getBounds().getSouthWest().lng())
-    // const bounds = map.getBounds();
-    // console.log('east', map.getBounds().getNorthEast().lat())
-    // console.log('north', map.getBounds().getNorthEast().lng())
-    // console.log('west', map.getBounds().getSouthWest().lat())
-    // console.log('south', map.getBounds().getSouthWest().lng())
-
-    // console.log(bounds);
-    // drawRectangle(bounds);
-    // 
-    //debugger;
-    const toJSON = map.getBounds().toJSON();
-    const toUrlValue = map.getBounds().toUrlValue();
-
-    console.log(toJSON);
-    console.log(toUrlValue);
+    firstLoad = false;
   });
 
-
-  if (showMarkers) {
-    setupMarkers(opts);
-  }
+  document.querySelector('.js-toggle-scroll').addEventListener('click', (e) => {
+    toggleScroll();
+  });
 }
 
 const drawRectangle = (mapBounds = {}) => {
-  console.log(mapBounds.toUrlValue());
+  console.log(mapBounds)
   var boundingBox = new google.maps.Rectangle({
     bounds: mapBounds,
     strokeColor: '#FF0000',
@@ -203,4 +209,17 @@ const getListings = (opts = {}) => {
     .then((listings) => {
       return listings;
     });
+}
+
+
+const toggleScroll = () => {
+
+  scrollwheel = !scrollwheel;
+
+  console.log(scrollwheel)
+  map.setOptions({
+    scrollwheel: scrollwheel
+  });
+
+  document.querySelector('.zoom').innerHTML = scrollwheel ? 'Off' : 'On';
 }

@@ -59,4 +59,16 @@ a {
   font-size: 16px;
 }
 
+.settings {
+  
+  padding: 0;
+  margin: 0;
+}
+
+.settings li {
+  list-style: none;
+  background-color: #ccc;
+  display: inline-block;
+}
+
 
