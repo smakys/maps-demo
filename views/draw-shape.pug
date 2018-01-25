@@ -35,7 +35,7 @@ block append scripts_body
     window.addEventListener('load', () => {
 
       var drawingManager = new google.maps.drawing.DrawingManager({
-        //drawingMode: google.maps.drawing.OverlayType.MARKER, // PRESELECT MODE
+        drawingMode: google.maps.drawing.OverlayType.POLYGON, // PRESELECT MODE
         drawingControl: true,
         drawingControlOptions: {
           position: google.maps.ControlPosition.TOP_CENTER,
@@ -108,7 +108,7 @@ block append scripts_body
           return point.toUrlValue().replace(',',' ');
         });
 
-        points.push(point[0].toUrlValue().replace(',',' '));
+        points.push(polygonPoints[0].toUrlValue().replace(',',' '));
         
         const polygonString = encodeURIComponent(points.join(','));
 
