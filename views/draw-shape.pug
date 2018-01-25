@@ -1,0 +1,126 @@
+extends layout
+
+block mainTitle
+  h1 Draw a shape on the map
+
+block content
+  
+  h2 Settings
+  ul
+    li Limit: #{limit}
+    li Page: #{page}
+    li Zoom: #{zoom}
+
+  h2 Limits
+    ul.nav.nav-minor
+      li 
+        a(href='/maps?limit=30&page=1') 30
+      li
+        a(href='/maps?limit=50&page=1') 50
+      li
+        a(href='/maps?limit=80&page=1') 80
+      li
+        a(href='/maps?limit=100&page=1') 100
+
+  h2 Shape
+  div.polygon
+    div.polygon-type
+    div.polygon-coordinates
+
+
+  div#map
+
+block append scripts_body
+  script.
+    window.addEventListener('load', () => {
+
+      var drawingManager = new google.maps.drawing.DrawingManager({
+        //drawingMode: google.maps.drawing.OverlayType.MARKER, // PRESELECT MODE
+        drawingControl: true,
+        drawingControlOptions: {
+          position: google.maps.ControlPosition.TOP_CENTER,
+          //drawingModes: ['marker', 'circle', 'polygon', 'polyline', 'rectangle']
+          drawingModes: [google.maps.drawing.OverlayType.POLYGON]
+        },
+        //markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
+        circleOptions: {
+          fillColor: '#ffff00',
+          fillOpacity: 1,
+          strokeWeight: 5,
+          clickable: false,
+          editable: true,
+          zIndex: 1
+        }
+      });
+
+      drawingManager.setMap(map);
+
+      //- window.google.maps.event.addListener(drawingManager, 'overlaycomplete', (e) => {
+      //-   let html = '';
+
+      //-   if (e.type === 'rectangle') {
+      //-     html = `
+      //-       <div>Center: ${JSON.stringify(e.overlay.bounds.getCenter())}</div>
+      //-       <div>Bounding North East: ${JSON.stringify(e.overlay.bounds.getNorthEast())}</div>
+      //-       <div>Bounding South West: ${JSON.stringify(e.overlay.bounds.getSouthWest())}</div>
+      //-     `;
+          
+      //-     const directions = e.overlay.getBounds().toJSON();
+      //-     console.log(directions);
+      //-     const arr = [
+      //-       { lng: directions.north, lat: directions.east }, // northeast
+      //-       { lng: directions.north, lat: directions.west }, // northwest
+      //-       { lng: directions.south, lat: directions.west }, // southwest
+      //-       { lng: directions.south, lat: directions.east } // southwest
+      //-     ];
+
+      //-     debugger;
+
+      //-     const a = arr.map((item) => {
+      //-       return item.toUrlValue().replace(',',' ');
+      //-     });
+      //-     debugger;
+      //-     a.push(a[0].toUrlValue().replace(',',' '));
+
+      //-     const b = encodeURIComponent(a.join(','));
+      //-     //- debugger;
+      //-     setupMarkers({ polygon: `POLYGON((${b}))` });
+      //-   } else if (e.type === 'polygon') {
+      //-     //console.log(e.overlay);
+      //-     //console.log(e.overlay.latLngs)
+      //-     console.log(e.overlay);
+      //-   }
+
+      //-   document.querySelector('.polygon-type').innerHTML = e.type
+      //-   document.querySelector('.polygon-coordinates').insertAdjacentHTML('beforeend', html); 
+      //- });
+
+      window.google.maps.event.addListener(drawingManager, 'polygoncomplete', (polygon) => {
+        console.log(polygon)
+        console.log(polygon.getPaths())
+        const polygonPoints = polygon.getPath().getArray();
+
+        const points = polygonPoints.map((point) => {
+          console.log(point.toJSON());
+          console.log(point.toString());
+          console.log(point.toUrlValue());
+
+          return point.toUrlValue().replace(',',' ');
+        });
+
+        points.push(point[0].toUrlValue().replace(',',' '));
+        
+        const polygonString = encodeURIComponent(points.join(','));
+
+        setupMarkers({ polygon: `POLYGON((${polygonString}))` });
+      });
+
+      window.google.maps.event.addListener(drawingManager, 'rectanglecomplete', (rect) => {
+        console.log(rect);
+        debugger;
+      });
+
+
+    });
+    
+

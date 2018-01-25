@@ -15,9 +15,11 @@ html
           a(href='/stream') Stream results
         li
           a(href='/user-interaction') Infinite scroll
+        li
+          a(href='/draw-shape') Draw a shape on the map
     block content
     block scripts_body
-      script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCUZzcMMn3C4OjVWp2SGT1cLZ9GkRKa--Y' async defer)
+      script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCUZzcMMn3C4OjVWp2SGT1cLZ9GkRKa--Y&libraries=drawing' async defer)
       script.
         let limit = "#{limit}"
         let currentPage = "#{page}"
@@ -28,7 +30,7 @@ html
       script(src='/javascripts/global.js')
       script.
         window.addEventListener('load', function() {
-          initMap( { limit: limit, page: currentPage, zoom: zoom });
+          initMap( { limit: limit, page: currentPage, zoom: zoom }, !window.location.pathname.match('draw-shape'));
         });
       
 

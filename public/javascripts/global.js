@@ -25,25 +25,6 @@ function numFormat (num) {
   return '$' + num + divs[divisions];
 }
 
-/*
-ZapMap.prototype.setHomeMarker = function (home, context) {
-  if (typeof (context.homeMarkers.get(home.mlsNumber)) === 'undefined') {
-    var marker = new window.google.maps.Marker({
-      position: {lat: home.latitude, lng: home.longitude},
-      map: context.googlemap,
-      home: home,
-      icon: { url: 'data:image/svg+xml;charset=UTF-8;base64,' + window.btoa(homeMarker(context.brandColor, home.listingPrice)) }
-    });
-
-    window.google.maps.event.addListener(marker, 'click', function () {
-      // context.googlemap.panTo(marker.position); // currently removing the home detail info on bounds change which happens right after details display if we pan to center the clicked marker
-      homes.showHomeInfo(this.home);
-    });
-    context.homeMarkers.set(home.mlsNumber, marker);
-  }
-};
- */
-
 function homeMarker (color, price) {
   var homeMarker = `<svg xmlns="http://www.w3.org/2000/svg"
        width="60px" height="30px" viewBox="0 0 700 300" class="homeMarker">
@@ -104,9 +85,8 @@ const addMarkers = (markers, animation = null) => {
   });
 }
 
-const initMap = (opts = {}) => {
+const initMap = (opts = {}, showMarkers = true) => {
   const center = {lat: 37.7749, lng: -122.4194};
-  
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: parseInt(opts.zoom, 10),
     gestureHandling: 'greedy',
@@ -115,7 +95,6 @@ const initMap = (opts = {}) => {
 
   map.addListener('bounds_changed', debounce(() => {
     console.log('bounds_changed');
-    
   }, 300));
 
   map.addListener('zoom_changed', () => {
@@ -128,14 +107,45 @@ const initMap = (opts = {}) => {
 
   map.addListener('idle', () => {
     console.log('idle');
-    console.log(map.getBounds());
-    console.log(map.getBounds().getNorthEast().lat())
-    console.log(map.getBounds().getNorthEast().lng())
-    console.log(map.getBounds().getSouthWest().lat())
-    console.log(map.getBounds().getSouthWest().lng())
+    // console.log(map.getBounds());
+    // console.log(map.getBounds().getNorthEast().lat())
+    // console.log(map.getBounds().getNorthEast().lng())
+    // console.log(map.getBounds().getSouthWest().lat())
+    // console.log(map.getBounds().getSouthWest().lng())
+    // const bounds = map.getBounds();
+    // console.log('east', map.getBounds().getNorthEast().lat())
+    // console.log('north', map.getBounds().getNorthEast().lng())
+    // console.log('west', map.getBounds().getSouthWest().lat())
+    // console.log('south', map.getBounds().getSouthWest().lng())
+
+    // console.log(bounds);
+    // drawRectangle(bounds);
+    // 
+    //debugger;
+    const toJSON = map.getBounds().toJSON();
+    const toUrlValue = map.getBounds().toUrlValue();
+
+    console.log(toJSON);
+    console.log(toUrlValue);
   });
 
-  setupMarkers(opts);
+
+  if (showMarkers) {
+    setupMarkers(opts);
+  }
+}
+
+const drawRectangle = (mapBounds = {}) => {
+  console.log(mapBounds.toUrlValue());
+  var boundingBox = new google.maps.Rectangle({
+    bounds: mapBounds,
+    strokeColor: '#FF0000',
+    strokeOpacity: 0.8,
+    strokeWeight: 3,
+    fillColor: '#FF0000',
+    fillOpacity: 0.35
+  });
+  boundingBox.setMap(map);
 }
 
 const setupSidebar = (opts = {}) => {
@@ -176,11 +186,10 @@ const setupMarkers = (opts = {}, animation) => {
 
 const getListings = (opts = {}) => {
   
-  opts = Object.assign({ limit: 100 }, opts);
+  opts = Object.assign({ page: 1, limit: 100, polygon: 'POLYGON((-122.51026153564453%2037.78124290642932%2C-122.47180938720703%2037.807558885337194%2C-122.40280151367188%2037.80593136481263%2C-122.38941192626953%2037.788840233834875%2C-122.40760803222656%2037.73455647806937%2C-122.50614166259766%2037.736457082238054%2C-122.51026153564453%2037.78124290642932))' }, opts);
   //const polygon = encodeURIComponent(`POLYGON((-122.26490476074218 37.883368428768456,-122.57389523925781 37.66627219960809))`);
   
-  const polygon = 'POLYGON((-122.51026153564453%2037.78124290642932%2C-122.47180938720703%2037.807558885337194%2C-122.40280151367188%2037.80593136481263%2C-122.38941192626953%2037.788840233834875%2C-122.40760803222656%2037.73455647806937%2C-122.50614166259766%2037.736457082238054%2C-122.51026153564453%2037.78124290642932))';
-  const url = `//mls-listing.services.aur.ziprealty.com/mls-listings?polygon=${polygon}&allowMlsView=false&page=${opts.page}&resultsPerPage=${opts.limit}&responseView=card`;
+  const url = `//mls-listing.services.aur.ziprealty.com/mls-listings?polygon=${opts.polygon}&allowMlsView=false&page=${opts.page}&resultsPerPage=${opts.limit}&responseView=card`;
 
   return fetch(url, {
     method: 'GET',

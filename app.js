@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var maps = require('./routes/maps');
 var stream = require('./routes/stream');
 var userInteraction = require('./routes/user-interaction');
+var drawShape = require('./routes/draw-shape');
 
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/users', users);
 app.use('/maps', maps);
 app.use('/stream', stream);
 app.use('/user-interaction', userInteraction);
+app.use('/draw-shape', drawShape);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
